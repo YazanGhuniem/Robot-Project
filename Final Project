@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+from ev3dev2.motor import MoveTank,Motor,SpeedPercent,SpeedRPM,OUTPUT_A,OUTPUT_B, follow_for_ms
+from ev3dev2.sensor.lego import GyroSensor
+import math
+Location = [0,0]
+Move = MoveTank(OUTPUT_B, OUTPUT_A)
+Gyro = GyroSensor()
+Move.gyro = GyroSensor()
+Move.gyro.calibrate()
+Angle = Gyro.angle
+Target = str(input('Enter Target Box as String: '))
+RowLocations = [[[0,0],[0,0]],[[0,0],[0,0]],[[0,0],[0,0]],[[0,0],[0,0]]]
+Barcodes = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+# put in the coordinate the best matches with the left side of the row. always going to scan left -> right
+def CharToIdx(input):
+    # This function takes a code such as "D2" and turns it into an array coordinate, [3,1] in this case.
+    input = input.lower()
+    output = []
+    for character in input:
+        temp = ord(character) - 97
+    print(character)
+    if temp < 27 and temp > 0:
+        number = temp
+    else:
+        number = temp + 48
+    output.append(number)
+    return(output)
+def StraightLine(Dist):
+    if Dist > 0:
+        #Dist should be in mm and positive
+        angle = round(Gyro.angle / 90) * 90 
+        T =(Dist/131) * 1000  
+        Move.follow_gyro_angle(11.3, 0.05, 3.2, SpeedRPM(60), angle, follow_for = follow_for_ms, ms = T)
+        return()
+    else:
+        return('Distance must a positive float value')
+def Turn90(dir):
+    # this function turns the bot 90 degrees in the direction specified (1 or -1)
+    if dir == 1 or dir == -1:
+        Move.turn_degrees(SpeedRPM(30),90*dir,True,0)
+        return(Gyro.angle)
+    else:
+        return('direction must be either 1 or -1')
+def GoToRow(Pos,NewPos):
+    # This is the function that moves the bot from the start location to the left side of the row
+    DeltaX = NewPos[0] - Pos[0]
+    DeltaY = NewPos[1] - Pos[1]
+    if DeltaY > 0:
+        Move.turn_degrees(SpeedRPM(30),0,True,0)
+    else:
+        Move.turn_degrees(SpeedRPM(30),180,True,0)
+    StraightLine(DeltaY)
+    Angle = Gyro.angle
+    if DeltaX > 0:
+        Move.turn_degrees(SpeedRPM(30),90,True,0)
+    else:
+        Move.turn_degrees(SpeedRPM(30),270,True,0)
+    StraightLine(DeltaX)
+    Move.turn_degrees(SpeedRPM(30),90,True,0)
+    Angle = Gyro.angle
+    Location = NewPos
+#def BarcodeScan(TargetCode):
+    #here will go the barcode scanning code. Need to make Arnav's code compliant with mine. 
+TargetIdx = CharToIdx(Target)
+GoToRow(Location,[1000,1680])
