@@ -1,0 +1,17 @@
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B, MoveDifferential, SpeedRPM
+import ev3dev2.wheel
+import time
+W=ev3dev2.wheel
+# - uses the standard wheels known as EV3Tire
+# - wheels are 23 studs apart/175 mm apart
+Y = int(input('Enter Y Value: '))
+N = int(input('Enter N value: '))
+mdiff = MoveDifferential(OUTPUT_A, OUTPUT_B, W.EV3Tire,110)
+
+# Enable odometry
+mdiff.odometry_start()
+for i in range(N):
+    mdiff.on_for_distance(SpeedRPM(50),Y)
+    mdiff.on_for_distance(SpeedRPM(50),-Y)
+# Disable odometry
+mdiff.odometry_stop()
