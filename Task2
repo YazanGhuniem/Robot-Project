@@ -1,0 +1,14 @@
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B, MoveDifferential, SpeedRPM
+import ev3dev2.wheel
+import time
+W=ev3dev2.wheel
+Y = int(input('Enter Y Value: '))
+N = int(input('Enter N value: '))
+mdiff = MoveDifferential(OUTPUT_A, OUTPUT_B, W.EV3Tire,110)
+mdiff.odometry_start()
+for i in range(N):
+    mdiff.on_to_coordinates(SpeedRPM(50),0,Y)
+    mdiff.on_to_coordinates(SpeedRPM(50),0,0)
+    mdiff.turn_to_angle(SpeedRPM(50),90)
+# Disable odometry
+mdiff.odometry_stop()
